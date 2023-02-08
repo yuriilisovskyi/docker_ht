@@ -1,0 +1,25 @@
+# 1. Install git, docker
+sudo apt install git
+sudo snap install docker
+
+# 2. Clone git repository
+git clone https://github.com/yuriilisovskyi/docker_ht.git
+
+# 3. Load docker image
+cd docker_ht
+docker load --input custom_netcat.tar
+
+# 4. Create custom network
+docker network create --subnet=172.18.0.0/16 netcat_net
+
+# 5. Create and run netcat server container from alpine
+docker run -d -i --name netcat_server --network netcat_net --ip 172.18.0.2 -v $(pwd)/nc_server:/home/root --publish 4444:4444 yuriilisovskyi/custom_netcat
+
+# 6. Create and run netcat client container from alpine
+docker run -d -i --name netcat_client --network netcat_net --ip 172.18.0.3 -v $(pwd)/nc_client:/home/root yuriilisovskyi/custom_netcat
+
+# 7. Run netcat server
+docker container exec -t netcat_server /bin/sh "/home/root/nc_server"
+
+# 8. In other terminal window run netcat client test message
+docker container exec -t netcat_client /bin/sh "/home/root/nc_client"

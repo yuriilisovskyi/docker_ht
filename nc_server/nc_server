@@ -1,0 +1,1 @@
+while true; do nc -lvvp 4444; sleep 1; done
